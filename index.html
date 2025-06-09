@@ -155,19 +155,16 @@
         statusDisplay.textContent = text;
       }
 
-      // ✅ 页面不可见提醒
       document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
           alert("为保证通话顺畅，请保持页面激活在前台。");
         }
       });
 
-      // ✅ 通话提醒振动
       function vibrateNotify() {
         if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
       }
 
-      // ✅ 通话提示音
       function playBeep() {
         const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_1f7d60e2d1.mp3');
         audio.play().catch(() => {});
@@ -178,7 +175,7 @@
         isCalling = true;
         callButton.disabled = true;
         hangupButton.disabled = false;
-        updateStatus("正在呼叫客服...");
+        updateStatus("正在拨号...");
 
         session = ua.call('sip:5555@xin.anjre.cn', {
           mediaConstraints: { audio: true, video: false },
@@ -196,12 +193,19 @@
           remoteAudio.play().catch(err => console.warn('播放失败:', err));
         });
 
-        session.on('progress', () => updateStatus("等待接通中..."));
-        session.on('accepted', () => updateStatus("通话中"));
+        session.on('progress', () => {
+          updateStatus("正在振铃...");
+        });
+
+        session.on('accepted', () => {
+          updateStatus("通话中");
+        });
+
         session.on('ended', () => {
           updateStatus("通话已结束");
           resetUI();
         });
+
         session.on('failed', (e) => {
           updateStatus("通话失败，请重试");
           console.error('失败:', e);
@@ -220,9 +224,7 @@
         session = null;
       }
 
-      // ✅ 禁止右键菜单
       document.addEventListener('contextmenu', event => event.preventDefault());
-      // ✅ 禁止 F12、Ctrl+Shift+I 等调试
       document.onkeydown = function (e) {
         if (
           e.key === 'F12' ||
