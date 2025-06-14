@@ -130,7 +130,7 @@
       const socket = new JsSIP.WebSocketInterface('wss://xin.anjre.cn:8089/ws');
       const configuration = {
         sockets: [socket],
-        uri: 'sip:1002020@xin.anjre.cn',
+        uri: 'sip:80000@xin.anjre.cn',
         password: 'Aa6363463@',
         display_name: '抖音网页客户',
         session_timers: false,
@@ -180,7 +180,7 @@
         hangupButton.disabled = false;
         updateStatus("拨号中...");
 
-        session = ua.call('sip:5555@xin.anjre.cn', {
+        session = ua.call('sip:10011@xin.anjre.cn', {
           mediaConstraints: { audio: true, video: false },
           rtcOfferConstraints: {
             offerToReceiveAudio: 1,
